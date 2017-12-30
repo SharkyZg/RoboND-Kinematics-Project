@@ -132,7 +132,7 @@ def handle_calculate_IK(req):
         T_total = simplify(T0_G+R_corr)
 
         # Extract rotation matrices from the transformation matrices
-        T0_1_rot = T0_1[0:3,0:3]
+        R_corr_rot = R_corr[0:3,0:3]
 
         # Initialize service response
         joint_trajectory_list = []
@@ -147,7 +147,6 @@ def handle_calculate_IK(req):
             py = req.poses[x].position.y
             pz = req.poses[x].position.z
 
-            print("position:", px)
             (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
                 [req.poses[x].orientation.x, req.poses[x].orientation.y,
                     req.poses[x].orientation.z, req.poses[x].orientation.w])
@@ -155,7 +154,20 @@ def handle_calculate_IK(req):
             ### Your IK code here
             # Compensate for rotation discrepancy between DH parameters and Gazebo
 
-            Rrpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll) * R_corr
+            Rrpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll) * R_corr_rot
+
+            wx = px - (d6+d7) * Rrpy.row(0).col(2)[0]
+            wy = py - (d6+d7) * Rrpy.row(1).col(2)[0]
+            wz = pz - (d6+d7) * Rrpy.row(2).col(2)[0]
+            wx = wx.subs(s)
+            wy = wy.subs(s)
+            wz = wz.subs(s)          
+
+            print("WC")
+            print("wx: ", wx)            
+            print("wy: ", wy)            
+            print("wz: ", wz)            
+                        
             #
             #
             # Calculate joint angles using Geometric IK method
