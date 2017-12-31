@@ -167,6 +167,7 @@ def handle_calculate_IK(req):
             print("wy: ", wy)            
             print("wz: ", wz)            
                         
+            theta1 = atan2(wy, wx)
             #
             #
             # Calculate joint angles using Geometric IK method

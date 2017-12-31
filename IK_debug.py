@@ -89,12 +89,7 @@ def test_code(test_case):
     ##
 
     # Insert IK code here!
-    theta1 = 0
-    theta2 = 0
-    theta3 = 0
-    theta4 = 0
-    theta5 = 0
-    theta6 = 0
+
 
     q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
@@ -218,6 +213,14 @@ def test_code(test_case):
     print("wx: ", wx)
     print("wy: ", wy)
     print("wz: ", wz)
+
+
+    theta1 = atan2(wy, wx)
+    theta2 = 0
+    theta3 = 0
+    theta4 = 0
+    theta5 = 0
+    theta6 = 0
 
     ##
     ########################################################################################
