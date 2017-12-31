@@ -23,26 +23,25 @@ import numpy as np
 
 ### Define functions for Rotation Matrices about x, y, and z given specific angle.
 
-def rot_z(q):
-    R_z = Matrix([[ 1,              0,        0],
-                  [ 0,         cos(q),  -sin(q)],
-                  [ 0,         sin(q),  cos(q)]])
-    
-    return R_z
-    
-def rot_y(q):              
-    R_y = Matrix([[ cos(q),        0,  sin(q)],
-                  [      0,        1,       0],
+def rot_x(q):
+    R_x = Matrix([[1,              0,        0],
+                  [0,         cos(q),  -sin(q)],
+                  [0,         sin(q),  cos(q)]])
+    return R_x
+
+
+def rot_y(q):
+    R_y = Matrix([[cos(q),        0,  sin(q)],
+                  [0,        1,       0],
                   [-sin(q),        0, cos(q)]])
-    
     return R_y
 
-def rot_x(q):    
-    R_x = Matrix([[ cos(q),  -sin(q),       0],
-                  [ sin(q),   cos(q),       0],
-                  [      0,        0,       1]])
-    
-    return R_x
+
+def rot_z(q):
+    R_z = Matrix([[cos(q),  -sin(q),       0],
+                  [sin(q),   cos(q),       0],
+                  [0,        0,       1]])
+    return R_z
 
 def handle_calculate_IK(req):
     rospy.loginfo("Received %s eef-poses from the plan" % len(req.poses))
