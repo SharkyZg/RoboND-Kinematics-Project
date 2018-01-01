@@ -223,7 +223,10 @@ def test_code(test_case):
     phi1 =  acos((d4*d4-a2*a2-r3*r3)/(-2*a2*r3))
     theta2 = pi/2-(phi1+phi2)
     theta2 = theta2.subs(s)
-    theta3 = 0
+    phi3 =  acos((r3*r3-a2*a2-d4*d4)/(-2*a2*d4))
+    phi4 = -atan2(a3,d4)
+    theta3 = pi/2-phi3-phi4
+    theta3 = theta3.subs(s)
     theta4 = 0
     theta5 = 0
     theta6 = 0
@@ -293,6 +296,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number = 1
+    test_case_number = 3
 
     test_code(test_cases[test_case_number])

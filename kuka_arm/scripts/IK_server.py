@@ -191,6 +191,10 @@ def handle_calculate_IK(req):
             phi1 = acos((d4 * d4 - a2 * a2 - r3 * r3) / (-2 * a2 * r3))
             theta2 = pi / 2 - (phi1 + phi2)
             theta2 = theta2.subs(s)
+            phi3 =  acos((r3*r3-a2*a2-d4*d4)/(-2*a2*d4))
+            phi4 = -atan2(a3,d4)
+            theta3 = pi/2-phi3-phi4
+            theta3 = theta3.subs(s)
             #
             #
             # Calculate joint angles using Geometric IK method
