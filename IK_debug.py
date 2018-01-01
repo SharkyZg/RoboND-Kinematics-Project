@@ -216,7 +216,13 @@ def test_code(test_case):
 
 
     theta1 = atan2(wy, wx)
-    theta2 = 0
+    r1 = sqrt(wx*wx+wy*wy) - a1
+    r2 = wz- d1
+    phi2 = atan2(r2,r1)
+    r3 = sqrt(r1*r1+r2*r2)
+    phi1 =  acos((d4*d4-a2*a2-r3*r3)/(-2*a2*r3))
+    theta2 = pi/2-(phi1+phi2)
+    theta2 = theta2.subs(s)
     theta3 = 0
     theta4 = 0
     theta5 = 0
@@ -287,6 +293,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number = 3
+    test_case_number = 1
 
     test_code(test_cases[test_case_number])
