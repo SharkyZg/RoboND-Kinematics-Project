@@ -93,13 +93,13 @@ def handle_calculate_IK(req):
                        [0,                   0,            0,               1]])
         T2_3 = T2_3.subs(s)
 
-        T3_4 = Matrix([[cos(q4),            -sin(q4),            0,              a3],
-                       [sin(q4) * cos(alpha3), cos(q4) * cos(alpha3), -
-                        sin(alpha3), -sin(alpha3) * d4],
-                       [sin(q4) * sin(alpha3), cos(q4) * sin(alpha3),
-                        cos(alpha3),  cos(alpha3) * d4],
-                       [0,                   0,            0,               1]])
-        T3_4 = T3_4.subs(s)
+        # T3_4 = Matrix([[cos(q4),            -sin(q4),            0,              a3],
+        #                [sin(q4) * cos(alpha3), cos(q4) * cos(alpha3), -
+        #                 sin(alpha3), -sin(alpha3) * d4],
+        #                [sin(q4) * sin(alpha3), cos(q4) * sin(alpha3),
+        #                 cos(alpha3),  cos(alpha3) * d4],
+        #                [0,                   0,            0,               1]])
+        # T3_4 = T3_4.subs(s)
 
         T4_5 = Matrix([[cos(q5),            -sin(q5),            0,              a4],
                        [sin(q5) * cos(alpha4), cos(q5) * cos(alpha4), -
@@ -125,12 +125,12 @@ def handle_calculate_IK(req):
                        [0,                   0,            0,               1]])
         T6_G = T6_G.subs(s)
         # Create individual transformation matricess
-        T0_2 = simplify(T0_1 * T1_2)
-        T0_3 = simplify(T0_2 * T2_3)
-        T0_4 = simplify(T0_3 * T3_4)
-        T0_5 = simplify(T0_4 * T4_5)
-        T0_6 = simplify(T0_5 * T5_6)
-        T0_G = simplify(T0_6 * T6_G)
+        # T0_2 = simplify(T0_1 * T1_2)
+        # T0_3 = simplify(T0_2 * T2_3)
+        # T0_4 = simplify(T0_3 * T3_4)
+        # T0_5 = simplify(T0_4 * T4_5)
+        # T0_6 = simplify(T0_5 * T5_6)
+        # T0_G = simplify(T0_6 * T6_G)
 
         # Correction difference between definition of gripper_link in URDF vs DH convetion
         R_z = Matrix([[cos(np.pi),  -sin(np.pi),     0,    0],
@@ -144,12 +144,12 @@ def handle_calculate_IK(req):
                       [0,        0,          0,   1]])
         R_corr = simplify(R_z * R_y)
 
-        T_total = simplify(T0_G + R_corr)
+        # T_total = simplify(T0_G + R_corr)
 
         # Extract rotation matrices from the transformation matrices
         R_corr_rot = R_corr[0:3, 0:3]
         R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
-        R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
+        # R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
 
         # Initialize service response
         joint_trajectory_list = []
@@ -201,17 +201,15 @@ def handle_calculate_IK(req):
             R3_6 = R0_3.inv("LU") * Rrpy
             R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
 
-            r11 = R3_6.row(0).col(0)[0]
+            # r11 = R3_6.row(0).col(0)[0]
             r13 = R3_6.row(0).col(2)[0]
 
             r21 = R3_6.row(1).col(0)[0]
             r22 = R3_6.row(1).col(1)[0]
             r23 = R3_6.row(1).col(2)[0]
-            r31 = R3_6.row(2).col(0)[0]
-            r32 = R3_6.row(2).col(1)[0]
+            # r31 = R3_6.row(2).col(0)[0]
+            # r32 = R3_6.row(2).col(1)[0]
             r33 = R3_6.row(2).col(2)[0]
-
-            
 
             theta5 = atan2(sqrt(r13**2 + r33**2), r23)
             if sin(theta5) < 0:
@@ -220,8 +218,8 @@ def handle_calculate_IK(req):
             else:
                 theta4 = atan2(r33, -r13)
                 theta6 = atan2(-r22, r21)
-            print(theta1, theta2, theta3, theta4, theta5, theta6)
-                #
+            print("Angles: ", theta1, theta2, theta3, theta4, theta5, theta6)
+            #
         #
         # Calculate joint angles using Geometric IK method
         #
