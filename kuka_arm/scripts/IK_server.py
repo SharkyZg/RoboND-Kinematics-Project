@@ -15,11 +15,8 @@ import tf
 from kuka_arm.srv import *
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Pose
-from mpmath import radians
-from numpy import array
 from sympy import *
 from sympy.matrices import Matrix
-import numpy as np
 
 # Define functions for Rotation Matrices about x, y, and z given specific angle.
 
@@ -133,14 +130,14 @@ def handle_calculate_IK(req):
         # T0_G = simplify(T0_6 * T6_G)
 
         # Correction difference between definition of gripper_link in URDF vs DH convetion
-        R_z = Matrix([[cos(np.pi),  -sin(np.pi),     0,    0],
-                      [sin(np.pi),   cos(np.pi),     0,    0],
+        R_z = Matrix([[cos(pi),  -sin(pi),     0,    0],
+                      [sin(pi),   cos(pi),     0,    0],
                       [0,        0,       1,    0],
                       [0,        0,       0,    1]])
 
-        R_y = Matrix([[cos(-np.pi / 2),        0, sin(-np.pi / 2),   0],
+        R_y = Matrix([[cos(-pi / 2),        0, sin(-pi / 2),   0],
                       [0,        1,          0,   0],
-                      [-sin(-np.pi / 2),        0, cos(-np.pi / 2),   0],
+                      [-sin(-pi / 2),        0, cos(-pi / 2),   0],
                       [0,        0,          0,   1]])
         R_corr = simplify(R_z * R_y)
 
