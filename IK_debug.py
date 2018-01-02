@@ -228,7 +228,6 @@ def test_code(test_case):
     theta3 = pi / 2 - phi3 - phi4
     theta3 = theta3.subs(s)
 
-    print(R3_6_symbol)
     R3_6 = R0_3.inv("LU") * Rrpy
     R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
 
@@ -242,9 +241,15 @@ def test_code(test_case):
     r32 = R3_6.row(2).col(1)[0]
     r33 = R3_6.row(2).col(2)[0]
 
-    theta4 = atan2(r33,-r13)
+     
+
     theta5 = atan2(sqrt(r13**2 + r33**2), r23)
-    theta6 = atan2(-r22,r21)
+    if sin(theta5) < 0:
+        theta4 = atan2(-r33, r13)
+        theta6 = atan2(r22, -r21)
+    else:
+        theta4 = atan2(r33, -r13)
+        theta6 = atan2(-r22, r21)
 
     ##
     ########################################################################################
@@ -311,6 +316,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number=3
+    test_case_number=1
 
     test_code(test_cases[test_case_number])
