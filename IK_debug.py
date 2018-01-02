@@ -90,7 +90,6 @@ def test_code(test_case):
 
     # Insert IK code here!
 
-
     q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
     d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
     a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
@@ -185,6 +184,8 @@ def test_code(test_case):
 
     # Extract rotation matrices from the transformation matrices
     R_corr_rot = R_corr[0:3, 0:3]
+    R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
+    R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
 
     # Extract end-effector position and orientation from request
     # px,py,pz = end-effector position
@@ -214,22 +215,36 @@ def test_code(test_case):
     print("wy: ", wy)
     print("wz: ", wz)
 
-
     theta1 = atan2(wy, wx)
-    r1 = sqrt(wx*wx+wy*wy) - a1
-    r2 = wz- d1
-    phi2 = atan2(r2,r1)
-    r3 = sqrt(r1*r1+r2*r2)
-    phi1 =  acos((d4*d4-a2*a2-r3*r3)/(-2*a2*r3))
-    theta2 = pi/2-(phi1+phi2)
+    r1 = sqrt(wx * wx + wy * wy) - a1
+    r2 = wz - d1
+    phi2 = atan2(r2, r1)
+    r3 = sqrt(r1 * r1 + r2 * r2)
+    phi1 = acos((d4 * d4 - a2 * a2 - r3 * r3) / (-2 * a2 * r3))
+    theta2 = pi / 2 - (phi1 + phi2)
     theta2 = theta2.subs(s)
-    phi3 =  acos((r3*r3-a2*a2-d4*d4)/(-2*a2*d4))
-    phi4 = -atan2(a3,d4)
-    theta3 = pi/2-phi3-phi4
+    phi3 = acos((r3 * r3 - a2 * a2 - d4 * d4) / (-2 * a2 * d4))
+    phi4 = -atan2(a3, d4)
+    theta3 = pi / 2 - phi3 - phi4
     theta3 = theta3.subs(s)
-    theta4 = 0
-    theta5 = 0
-    theta6 = 0
+
+    print(R3_6_symbol)
+    R3_6 = R0_3.inv("LU") * Rrpy
+    R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+
+    r11 = R3_6.row(0).col(0)[0]
+    r13 = R3_6.row(0).col(2)[0]
+
+    r21 = R3_6.row(1).col(0)[0]
+    r22 = R3_6.row(1).col(1)[0]
+    r23 = R3_6.row(1).col(2)[0]
+    r31 = R3_6.row(2).col(0)[0]
+    r32 = R3_6.row(2).col(1)[0]
+    r33 = R3_6.row(2).col(2)[0]
+
+    theta4 = atan2(r33,-r13)
+    theta5 = atan2(sqrt(r13**2 + r33**2), r23)
+    theta6 = atan2(-r22,r21)
 
     ##
     ########################################################################################
@@ -244,9 +259,9 @@ def test_code(test_case):
     ########################################################################################
 
     # For error analysis please set the following variables of your WC location and EE location in the format of [x,y,z]
-    your_wc = [1, 1, 1]  # <--- Load your calculated WC values in this array
+    your_wc=[1, 1, 1]  # <--- Load your calculated WC values in this array
     # <--- Load your calculated end effector value from your forward kinematics
-    your_ee = [1, 1, 1]
+    your_ee=[1, 1, 1]
     ########################################################################################
 
     # Error analysis
@@ -255,22 +270,22 @@ def test_code(test_case):
 
     # Find WC error
     if not(sum(your_wc) == 3):
-        wc_x_e = abs(your_wc[0] - test_case[1][0])
-        wc_y_e = abs(your_wc[1] - test_case[1][1])
-        wc_z_e = abs(your_wc[2] - test_case[1][2])
-        wc_offset = sqrt(wc_x_e**2 + wc_y_e**2 + wc_z_e**2)
+        wc_x_e=abs(your_wc[0] - test_case[1][0])
+        wc_y_e=abs(your_wc[1] - test_case[1][1])
+        wc_z_e=abs(your_wc[2] - test_case[1][2])
+        wc_offset=sqrt(wc_x_e**2 + wc_y_e**2 + wc_z_e**2)
         print ("\nWrist error for x position is: %04.8f" % wc_x_e)
         print ("Wrist error for y position is: %04.8f" % wc_y_e)
         print ("Wrist error for z position is: %04.8f" % wc_z_e)
         print ("Overall wrist offset is: %04.8f units" % wc_offset)
 
     # Find theta errors
-    t_1_e = abs(theta1 - test_case[2][0])
-    t_2_e = abs(theta2 - test_case[2][1])
-    t_3_e = abs(theta3 - test_case[2][2])
-    t_4_e = abs(theta4 - test_case[2][3])
-    t_5_e = abs(theta5 - test_case[2][4])
-    t_6_e = abs(theta6 - test_case[2][5])
+    t_1_e=abs(theta1 - test_case[2][0])
+    t_2_e=abs(theta2 - test_case[2][1])
+    t_3_e=abs(theta3 - test_case[2][2])
+    t_4_e=abs(theta4 - test_case[2][3])
+    t_5_e=abs(theta5 - test_case[2][4])
+    t_6_e=abs(theta6 - test_case[2][5])
     print ("\nTheta 1 error is: %04.8f" % t_1_e)
     print ("Theta 2 error is: %04.8f" % t_2_e)
     print ("Theta 3 error is: %04.8f" % t_3_e)
@@ -284,10 +299,10 @@ def test_code(test_case):
 
     # Find FK EE error
     if not(sum(your_ee) == 3):
-        ee_x_e = abs(your_ee[0] - test_case[0][0][0])
-        ee_y_e = abs(your_ee[1] - test_case[0][0][1])
-        ee_z_e = abs(your_ee[2] - test_case[0][0][2])
-        ee_offset = sqrt(ee_x_e**2 + ee_y_e**2 + ee_z_e**2)
+        ee_x_e=abs(your_ee[0] - test_case[0][0][0])
+        ee_y_e=abs(your_ee[1] - test_case[0][0][1])
+        ee_z_e=abs(your_ee[2] - test_case[0][0][2])
+        ee_offset=sqrt(ee_x_e**2 + ee_y_e**2 + ee_z_e**2)
         print ("\nEnd effector error for x position is: %04.8f" % ee_x_e)
         print ("End effector error for y position is: %04.8f" % ee_y_e)
         print ("End effector error for z position is: %04.8f" % ee_z_e)
@@ -296,6 +311,6 @@ def test_code(test_case):
 
 if __name__ == "__main__":
     # Change test case number for different scenarios
-    test_case_number = 3
+    test_case_number=3
 
     test_code(test_cases[test_case_number])
