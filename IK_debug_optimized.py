@@ -100,7 +100,7 @@ def test_code(test_case):
     s = {alpha0:        0,   a0:       0,   d1:   .75,
          alpha1: -pi / 2,   a1:    0.35,   d2:     0, q2: q2 - pi / 2,
          alpha2:     0,   a2:    1.25,   d3:     0,
-         alpha3: -pi / 2,   a3: -0.054,   d4:  1.50,
+         alpha3: -pi / 2,   a3: -0.054,   d4:  1.501,
          alpha4:  pi / 2,   a4:       0,   d5:     0,
          alpha5: -pi / 2,   a5:       0,   d6:     0,
          alpha6:     0,   a6:     0.0,   d7: 0.303,   q7: 0}
@@ -169,14 +169,14 @@ def test_code(test_case):
     # T0_G = simplify(T0_6 * T6_G)
 
     # Correction difference between definition of gripper_link in URDF vs DH convetion
-    R_z = Matrix([[cos(np.pi),  -sin(np.pi),     0,    0],
-                  [sin(np.pi),   cos(np.pi),     0,    0],
+    R_z = Matrix([[cos(pi),  -sin(pi),     0,    0],
+                  [sin(pi),   cos(pi),     0,    0],
                   [0,        0,       1,    0],
                   [0,        0,       0,    1]])
 
-    R_y = Matrix([[cos(-np.pi / 2),        0, sin(-np.pi / 2),   0],
+    R_y = Matrix([[cos(-pi / 2),        0, sin(-pi / 2),   0],
                   [0,        1,          0,   0],
-                  [-sin(-np.pi / 2),        0, cos(-np.pi / 2),   0],
+                  [-sin(-pi / 2),        0, cos(-pi / 2),   0],
                   [0,        0,          0,   1]])
     R_corr = R_z * R_y
 
