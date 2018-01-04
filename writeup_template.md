@@ -1,71 +1,192 @@
-## Project: Kinematics Pick & Place
-### Writeup Template: You can use this file as a template for your writeup if you want to submit it as a markdown file, but feel free to use some other method and submit a pdf if you prefer.
-
----
-
-
-**Steps to complete the project:**  
-
-
-1. Set up your ROS Workspace.
-2. Download or clone the [project repository](https://github.com/udacity/RoboND-Kinematics-Project) into the ***src*** directory of your ROS Workspace.  
-3. Experiment with the forward_kinematics environment and get familiar with the robot.
-4. Launch in [demo mode](https://classroom.udacity.com/nanodegrees/nd209/parts/7b2fd2d7-e181-401e-977a-6158c77bf816/modules/8855de3f-2897-46c3-a805-628b5ecf045b/lessons/91d017b1-4493-4522-ad52-04a74a01094c/concepts/ae64bb91-e8c4-44c9-adbe-798e8f688193).
-5. Perform Kinematic Analysis for the robot following the [project rubric](https://review.udacity.com/#!/rubrics/972/view).
-6. Fill in the `IK_server.py` with your Inverse Kinematics code. 
-
+# Project: Kinematics Pick & Place
 
 [//]: # (Image References)
 
 [image1]: ./misc_images/misc1.png
-[image2]: ./misc_images/misc3.png
+[image2]: ./misc_images/misc2.png
 [image3]: ./misc_images/misc2.png
 
-## [Rubric](https://review.udacity.com/#!/rubrics/972/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
+## 1. Introduction 
 
----
-### Writeup / README
+The assignment of this project was to solve the inverse kinematics problem of the KUKA R210 robot arm. The problem has been solved by calculating angles for 6 joints of the robot arm to achieve given end effector position. 
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
+## 2. Kinematic Analysis
+### 1. KR210 robot DH parameters.
 
-You're reading it!
+From the kr210.urdf.xacro file I was able to extract the following DH parameters:
 
-### Kinematic Analysis
-#### 1. Run the forward_kinematics demo and evaluate the kr210.urdf.xacro file to perform kinematic analysis of Kuka KR210 robot and derive its DH parameters.
+| Links | alpha(i-1) | a(i-1) | d(i)  | theta(i)   |
+| ----- | ---------- | ------ | ----- | ---------- |
+| 0->1  | 0          | 0      | .75   | qi         |
+| 1->2  | - pi/2     | 0.35   | 0     | -pi/2 + q2 |
+| 2->3  | 0          | 1.25   | 0     | qi         |
+| 3->4  | - pi/2     | -0.054 | 1.501 | qi         |
+| 4->5  | pi/2       | 0      | 0     | qi         |
+| 5->6  | - pi/2     | 0      | 0     | qi         |
+| 6->EE | 0          | 0      | 0.303 | 0          |
 
-Here is an example of how to include an image in your writeup.
-
-![alt text][image1]
-
-#### 2. Using the DH parameter table you derived earlier, create individual transformation matrices about each joint. In addition, also generate a generalized homogeneous transform between base_link and gripper_link using only end-effector(gripper) pose.
-
-Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
---- | --- | --- | --- | ---
-0->1 | 0 | 0 | L1 | qi
-1->2 | - pi/2 | L2 | 0 | -pi/2 + q2
-2->3 | 0 | 0 | 0 | 0
-3->4 |  0 | 0 | 0 | 0
-4->5 | 0 | 0 | 0 | 0
-5->6 | 0 | 0 | 0 | 0
-6->EE | 0 | 0 | 0 | 0
-
-
-#### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
-
-And here's where you can draw out and show your math for the derivation of your theta angles. 
+Annotated angles can be found on the image bellow (source: Udacity lectures):
 
 ![alt text][image2]
 
-### Project Implementation
 
-#### 1. Fill in the `IK_server.py` file with properly commented python code for calculating Inverse Kinematics based on previously performed Kinematic Analysis. Your code must guide the robot to successfully complete 8/10 pick and place cycles. Briefly discuss the code you implemented and your results. 
+### 2. Individual transformation matrices about each joint
+
+With the following code individual transformation matrices are generated:
+```
+    T0_1 = Matrix([[cos(q1),            -sin(q1),            0,              a0],
+                   [sin(q1) * cos(alpha0), cos(q1) * cos(alpha0), -
+                    sin(alpha0), -sin(alpha0) * d1],
+                   [sin(q1) * sin(alpha0), cos(q1) * sin(alpha0),
+                    cos(alpha0),  cos(alpha0) * d1],
+                   [0,                   0,            0,               1]])
+    T0_1 = T0_1.subs(s)
+    T1_2 = Matrix([[cos(q2),            -sin(q2),            0,              a1],
+                   [sin(q2) * cos(alpha1), cos(q2) * cos(alpha1), -
+                    sin(alpha1), -sin(alpha1) * d2],
+                   [sin(q2) * sin(alpha1), cos(q2) * sin(alpha1),
+                    cos(alpha1),  cos(alpha1) * d2],
+                   [0,                   0,            0,               1]])
+    T1_2 = T1_2.subs(s)
+
+    T2_3 = Matrix([[cos(q3),            -sin(q3),            0,              a2],
+                   [sin(q3) * cos(alpha2), cos(q3) * cos(alpha2), -
+                    sin(alpha2), -sin(alpha2) * d3],
+                   [sin(q3) * sin(alpha2), cos(q3) * sin(alpha2),
+                    cos(alpha2),  cos(alpha2) * d3],
+                   [0,                   0,            0,               1]])
+    T2_3 = T2_3.subs(s)
+
+    T3_4 = Matrix([[cos(q4),            -sin(q4),            0,              a3],
+                   [sin(q4) * cos(alpha3), cos(q4) * cos(alpha3), -
+                    sin(alpha3), -sin(alpha3) * d4],
+                   [sin(q4) * sin(alpha3), cos(q4) * sin(alpha3),
+                    cos(alpha3),  cos(alpha3) * d4],
+                   [0,                   0,            0,               1]])
+    T3_4 = T3_4.subs(s)
+
+    T4_5 = Matrix([[cos(q5),            -sin(q5),            0,              a4],
+                   [sin(q5) * cos(alpha4), cos(q5) * cos(alpha4), -
+                    sin(alpha4), -sin(alpha4) * d5],
+                   [sin(q5) * sin(alpha4), cos(q5) * sin(alpha4),
+                    cos(alpha4),  cos(alpha4) * d5],
+                   [0,                   0,            0,               1]])
+    T4_5 = T4_5.subs(s)
+
+    T5_6 = Matrix([[cos(q6),            -sin(q6),            0,              a5],
+                   [sin(q6) * cos(alpha5), cos(q6) * cos(alpha5), -
+                    sin(alpha5), -sin(alpha5) * d6],
+                   [sin(q6) * sin(alpha5), cos(q6) * sin(alpha5),
+                    cos(alpha5),  cos(alpha5) * d6],
+                   [0,                   0,            0,               1]])
+    T5_6 = T5_6.subs(s)
+
+    T6_G = Matrix([[cos(q7),            -sin(q7),            0,              a6],
+                   [sin(q7) * cos(alpha6), cos(q7) * cos(alpha6), -
+                    sin(alpha6), -sin(alpha6) * d7],
+                   [sin(q7) * sin(alpha6), cos(q7) * sin(alpha6),
+                    cos(alpha6),  cos(alpha6) * d7],
+                   [0,                   0,            0,               1]])
+    T6_G = T6_G.subs(s)
+
+```
+
+Transformation matrices are always the same, we only change DH parameter symbols for each joint and insert them with **subs(s)** command from the previously calculated DH parameter table.
+
+### 3. Generalized homogeneous transform between base_link and gripper_link by using only end-effector(gripper) pose
+
+Then  I have calculated individual transform matrices from base_link to gripper_link by matrix multiplication and use the **simplify** method to simplify matrices programmatically.
+
+```
+    # Create individual transformation matrices
+    T0_2 = simplify(T0_1 * T1_2)
+    T0_3 = simplify(T0_2 * T2_3)
+    T0_4 = simplify(T0_3 * T3_4)
+    T0_5 = simplify(T0_4 * T4_5)
+    T0_6 = simplify(T0_5 * T5_6)
+    T0_G = simplify(T0_6 * T6_G)
+```
+
+### 4. Inverse Position Kinematics 
+
+To find a wrist center position (position of the 5th joint) from a given gripper position I have first added previously calculated T0_G matrix to the correction matrix as defined bellow:
+```
+    # Correction difference between definition of gripper_link in URDF vs DH convention
+    R_z = Matrix([[cos(np.pi),  -sin(np.pi),     0,    0],
+                  [sin(np.pi),   cos(np.pi),     0,    0],
+                  [0,        0,       1,    0],
+                  [0,        0,       0,    1]])
+
+    R_y = Matrix([[cos(-np.pi / 2),        0, sin(-np.pi / 2),   0],
+                  [0,        1,          0,   0],
+                  [-sin(-np.pi / 2),        0, cos(-np.pi / 2),   0],
+                  [0,        0,          0,   1]])
+    R_corr = simplify(R_z * R_y)
+
+    T_total = simplify(T0_G + R_corr)
+```
+
+After the differences between URDF and DH conventions have been addressed, I have extracted R_corr_rot rotation matrix:
+```
+R_corr_rot = R_corr[0:3, 0:3]
+```
+
+I have defined rotation matrices around x, y and z axes as well:
+```
+def rot_x(q):
+    R_x = Matrix([[1,              0,        0],
+                  [0,         cos(q),  -sin(q)],
+                  [0,         sin(q),  cos(q)]])
+
+    return R_x
 
 
-Here I'll talk about the code, what techniques I used, what worked and why, where the implementation might fail and how I might improve it if I were going to pursue this project further.  
+def rot_y(q):
+    R_y = Matrix([[cos(q),        0,  sin(q)],
+                  [0,        1,       0],
+                  [-sin(q),        0, cos(q)]])
+
+    return R_y
 
 
-And just for fun, another example image:
-![alt text][image3]
+def rot_z(q):
+    R_z = Matrix([[cos(q),  -sin(q),       0],
+                  [sin(q),   cos(q),       0],
+                  [0,        0,       1]])
+    return R_z
+```
+
+Then I have created Rrpy matrix in a way that I have rotated and multiplied previously defined rot_x,  rot_y and rot_z matrices for yaw, pitch and roll angles respectively given by the path planner. At the end I have multiplied the rotation matrices by the previously defined R_corr_rot matrix to address discrepancies between DH parameter notation and Gazebo notation:
+```
+    (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+        [req.poses[x].orientation.x, req.poses[x].orientation.y,
+            req.poses[x].orientation.z, req.poses[x].orientation.w])
+
+    # Your IK code here
+    # Compensate for rotation discrepancy between DH parameters and Gazebo
+
+    Rrpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll) * R_corr_rot
+```
+
+After I made those calculations I had everything I needed to calculate wrist center position based on the formula from lectures:
+```
+    wx = px - (d6 + d7) * Rrpy.row(0).col(2)[0]
+    wy = py - (d6 + d7) * Rrpy.row(1).col(2)[0]
+    wz = pz - (d6 + d7) * Rrpy.row(2).col(2)[0]
+    wx = wx.subs(s)
+    wy = wy.subs(s)
+    wz = wz.subs(s)
+```
+
+### 5. inverse Orientation Kinematics
+
+# TODO: Derive the equations to calculate all individual joint angles
+
+And here's where you can draw out and show your math for the derivation of your theta angles. 
+image
+
+### 6. Conclusion
+
+
 
 
