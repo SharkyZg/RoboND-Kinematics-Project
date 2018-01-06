@@ -180,13 +180,55 @@ After I made those calculations I had everything I needed to calculate wrist cen
 
 ### 5. inverse Orientation Kinematics
 
-# TODO: Derive the equations to calculate all individual joint angles
+I have calculated first three joints by using inverse tangent function and the law of cosines. This was fairly straightforward and it involved using wrist centre positions combined with the parameters from DH table.
 
-And here's where you can draw out and show your math for the derivation of your theta angles. 
-image
+theta1 = atan2(wy, wx)
+r1 = sqrt(wx * wx + wy * wy) - a1
+r2 = wz - d1
+phi2 = atan2(r2, r1)
+r3 = sqrt(r1 * r1 + r2 * r2)
+phi1 = acos((d4 * d4 - a2 * a2 - r3 * r3) / (-2 * a2 * r3))
+theta2 = pi / 2 - (phi1 + phi2)
+theta2 = theta2.subs(s)
+phi3 = acos((r3 * r3 - a2 * a2 - d4 * d4) / (-2 * a2 * d4))
+phi4 = -atan2(a3, d4)
+theta3 = pi / 2 - phi3 - phi4
+theta3 = theta3.subs(s)
+
+Once I had wrist centre position and angles for the first three joints, I have calculated individual joint angles for the last three joints with the help of R3_6_symbol and R3_6 matrices that I defined as described bellow.
+
+I have calculated R0_3 matrix by multiplying previously defined transformation matrices and extracting only the rotation part. In a same way I have calculated R3_6_symbol matrix as well.
+
+R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
+R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
+
+Then I have calculated R3_6 matrix with values, I did it by taking inverse matrix of R0_3 and multiplying it by Rrpy. To get specific values I needed to insert previously calculated angles for the first three joints with help of **evalf** method as well.
+
+R3_6 = R0_3.inv("LU") * Rrpy
+R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
+
+By extracting equations from R3_6_symbol matrix and inserting values from the R3_6 matrix I was able to calculate joints for the last three angles.
+
+R3_6_symbol matrix:
+[-sin(q4)*sin(q6) + cos(q4)*cos(q5)*cos(q6) , -sin(q4)*cos(q6) - sin(q6)*cos(q4)*cos(q5) , -sin(q5)*cos(q4)]
+[sin(q5)*cos(q6)                            , -sin(q5)*sin(q6)                           , cos(q5)]
+[-sin(q4)*cos(q5)*cos(q6) - sin(q6)*cos(q4) , sin(q4)*sin(q6)*cos(q5) - cos(q4)*cos(q6)  , sin(q4)*sin(q5)]
+
+Calculation for the last three joints:
+
+r13 = R3_6.row(0).col(2)[0]
+r21 = R3_6.row(1).col(0)[0]
+r22 = R3_6.row(1).col(1)[0]
+r23 = R3_6.row(1).col(2)[0]
+r33 = R3_6.row(2).col(2)[0]
+
+theta5 = atan2(sqrt(r13**2 + r33**2), r23)
+if sin(theta5) < 0:
+    theta4 = atan2(-r33, r13)
+    theta6 = atan2(r22, -r21)
+else:
+    theta4 = atan2(r33, -r13)
+    theta6 = atan2(-r22, r21)
 
 ### 6. Conclusion
-
-
-
-
+This was very interesting project where it was needed to apply knowledge of Python Sympy package, ROS and trigonometry. I found the project very engaging and challenging at the same time, which was great. Things that could still be improved is the speed of calculations, as well as precalculated trajectories for specific trajectories. There is still much room for improvement in the trajectory planning as well, but that would be out of scope of this project.

@@ -203,12 +203,7 @@ def test_code(test_case):
 
     Rrpy = rot_z(yaw) * rot_y(pitch) * rot_x(roll) * R_corr_rot
 
-    wx = px - (d6 + d7) * Rrpy.row(0).col(2)[0]
-    wy = py - (d6 + d7) * Rrpy.row(1).col(2)[0]
-    wz = pz - (d6 + d7) * Rrpy.row(2).col(2)[0]
-    wx = wx.subs(s)
-    wy = wy.subs(s)
-    wz = wz.subs(s)
+ 
 
     print("WC")
     print("wx: ", wx)
