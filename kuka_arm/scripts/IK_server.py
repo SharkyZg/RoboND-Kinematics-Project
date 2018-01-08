@@ -52,7 +52,6 @@ def handle_calculate_IK(req):
     else:
 
         if not os.path.exists("T6_G.p"):
-            pickle.dump(R0_g_sym, open("T6_G.p", "wb"))
             # Your FK code here
             # Create symbols
             q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
@@ -125,6 +124,7 @@ def handle_calculate_IK(req):
                             cos(alpha6),  cos(alpha6) * d7],
                         [0,                   0,            0,               1]])
             T6_G = T6_G.subs(s)
+            pickle.dump(T6_G, open("T6_G.p", "wb"))
         else:
             T6_G= pickle.load(open("T6_G.p", "rb"))
 
