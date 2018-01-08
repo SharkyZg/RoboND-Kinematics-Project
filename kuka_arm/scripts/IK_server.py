@@ -51,7 +51,7 @@ def handle_calculate_IK(req):
         return -1
     else:
 
-        if not (os.path.exists("T6_G.p") or os.path.exists("R_corr_rot.p") or os.path.exists("R0_3.p")):
+        if not (os.path.exists("T6_G.p") and os.path.exists("R_corr_rot.p") and os.path.exists("R0_3.p")):
             # Your FK code here
             # Create symbols
             q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
