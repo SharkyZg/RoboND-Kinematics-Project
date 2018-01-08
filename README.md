@@ -206,7 +206,7 @@ We calculate R0_3 matrix by multiplying previously defined transformation matric
 R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
 R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
 ```
-Then we calculate R3_6 matrix with values, this can be done by taking inverse matrix of R0_3 and multiplying it by Rrpy. To get specific values we need to insert previously calculated angles for the first three joints with the help of **evalf** method.
+Then we calculate R3_6 matrix with values, this can be done by taking transpose of R0_3 and multiplying it by Rrpy. To get specific values we need to insert previously calculated angles for the first three joints with the help of **evalf** method.
 ```
 R3_6 = R0_3.inv("LU") * Rrpy
 R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})

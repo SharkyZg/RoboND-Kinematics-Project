@@ -280,7 +280,7 @@ def handle_calculate_IK(req):
 
             # Things that could still be improved is the speed of calculatios and some trajectories could be precalculated. 
             # There is still much room for improvement in the trajectory planning as well, but that would be out of scope of 
-            # this project.
+            # this project. From the technologies I have used ROS and Python(Sympy).
 
             # Sending calculated thetas back to the symulator
             joint_trajectory_point.positions = [
