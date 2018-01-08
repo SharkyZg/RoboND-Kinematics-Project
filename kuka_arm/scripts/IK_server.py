@@ -246,7 +246,7 @@ def handle_calculate_IK(req):
             # and multiplying it by Rrpy. To get specific values we need to insert previously calculated 
             # angles for the first three joints with the help of **evalf** method.
 
-            R3_6 = Transpose(R0_3) * Rrpy # Transpose has been used instead of .inv method to speed up the computation
+            R3_6 = R0_3.inv("LU") * Rrpy
             R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
 
             # By extracting equations from the R3_6_symbol matrix and inserting values from R3_6 matrix we
