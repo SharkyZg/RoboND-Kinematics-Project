@@ -249,7 +249,7 @@ def handle_calculate_IK(req):
             
             R3_6 = Transpose(R0_3) * Rrpy # Transpose has been used instead of .inv method to speed up the computation
             R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
-            R3_6 = np.array(R3_6).astype(np.float64) # To work properly matrix needs to be converted to Numpy 64 bit preicison.
+            R3_6 = np.array(R3_6).astype(np.float64) # To work properly matrix needs to be converted to Numpy 64 bit float.
 
             # By extracting equations from the R3_6_symbol matrix and inserting values from R3_6 matrix we
             # are able to calculate joints for the last three angles.
