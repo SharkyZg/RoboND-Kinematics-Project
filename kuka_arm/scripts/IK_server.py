@@ -51,7 +51,7 @@ def handle_calculate_IK(req):
         return -1
     else:
 
-        if not os.path.exists("T6_G.p"):
+        if not (os.path.exists("T6_G.p") or os.path.exists("R_corr_rot.p") or os.path.exists("R0_3.p")):
             # Your FK code here
             # Create symbols
             q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
@@ -124,36 +124,43 @@ def handle_calculate_IK(req):
                             cos(alpha6),  cos(alpha6) * d7],
                         [0,                   0,            0,               1]])
             T6_G = T6_G.subs(s)
+
+
+            # Create individual transformation matricess
+            # T0_2 = simplify(T0_1 * T1_2)
+            # T0_3 = simplify(T0_2 * T2_3)
+            # T0_4 = simplify(T0_3 * T3_4)
+            # T0_5 = simplify(T0_4 * T4_5)
+            # T0_6 = simplify(T0_5 * T5_6)
+            # T0_G = simplify(T0_6 * T6_G)
+
+            # Correction difference between definition of gripper_link in URDF vs DH convetion
+            R_z = Matrix([[cos(pi),  -sin(pi),     0,    0],
+                        [sin(pi),   cos(pi),     0,    0],
+                        [0,        0,       1,    0],
+                        [0,        0,       0,    1]])
+
+            R_y = Matrix([[cos(-pi / 2),        0, sin(-pi / 2),   0],
+                        [0,        1,          0,   0],
+                        [-sin(-pi / 2),        0, cos(-pi / 2),   0],
+                        [0,        0,          0,   1]])
+            R_corr = simplify(R_z * R_y)
+
+            # T_total = simplify(T0_G + R_corr)
+
+            # Extract rotation matrices from the transformation matrices
+            R_corr_rot = R_corr[0:3, 0:3]
+            R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
+            # R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
+
             pickle.dump(T6_G, open("T6_G.p", "wb"))
+            pickle.dump(R_corr_rot, open("R_corr_rot.p", "wb"))  
+            pickle.dump(R0_3, open("R0_3.p", "wb"))            
+                      
         else:
-            T6_G= pickle.load(open("T6_G.p", "rb"))
-
-        # Create individual transformation matricess
-        # T0_2 = simplify(T0_1 * T1_2)
-        # T0_3 = simplify(T0_2 * T2_3)
-        # T0_4 = simplify(T0_3 * T3_4)
-        # T0_5 = simplify(T0_4 * T4_5)
-        # T0_6 = simplify(T0_5 * T5_6)
-        # T0_G = simplify(T0_6 * T6_G)
-
-        # Correction difference between definition of gripper_link in URDF vs DH convetion
-        R_z = Matrix([[cos(pi),  -sin(pi),     0,    0],
-                      [sin(pi),   cos(pi),     0,    0],
-                      [0,        0,       1,    0],
-                      [0,        0,       0,    1]])
-
-        R_y = Matrix([[cos(-pi / 2),        0, sin(-pi / 2),   0],
-                      [0,        1,          0,   0],
-                      [-sin(-pi / 2),        0, cos(-pi / 2),   0],
-                      [0,        0,          0,   1]])
-        R_corr = simplify(R_z * R_y)
-
-        # T_total = simplify(T0_G + R_corr)
-
-        # Extract rotation matrices from the transformation matrices
-        R_corr_rot = R_corr[0:3, 0:3]
-        R0_3 = simplify(T0_1 * T1_2 * T2_3)[:3, :3]
-        # R3_6_symbol = simplify(T3_4 * T4_5 * T5_6)[:3, :3]
+            T6_G = pickle.load(open("T6_G.p", "rb"))
+            R_corr_rot = pickle.load(open("R_corr_rot.p", "rb"))
+            R0_3 = pickle.load(open("R0_3.p", "rb"))
 
         # Initialize service response
         joint_trajectory_list = []
