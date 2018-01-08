@@ -121,6 +121,7 @@ def handle_calculate_IK(req):
                         cos(alpha6),  cos(alpha6) * d7],
                        [0,                   0,            0,               1]])
         T6_G = T6_G.subs(s)
+
         # Create individual transformation matricess
         # T0_2 = simplify(T0_1 * T1_2)
         # T0_3 = simplify(T0_2 * T2_3)
@@ -181,7 +182,8 @@ def handle_calculate_IK(req):
             print("wx: ", wx)
             print("wy: ", wy)
             print("wz: ", wz)
-
+            
+            # Calculate joint angles using Geometric IK method
             theta1 = atan2(wy, wx)
             r1 = sqrt(wx * wx + wy * wy) - a1
             r2 = wz - d1
@@ -216,12 +218,6 @@ def handle_calculate_IK(req):
                 theta4 = atan2(r33, -r13)
                 theta6 = atan2(-r22, r21)
             print("Angles: ", theta1, theta2, theta3, theta4, theta5, theta6)
-            #
-        #
-        # Calculate joint angles using Geometric IK method
-        #
-        #
-        ###
 
         # Populate response for the IK request
         # In the next line replace theta1,theta2...,theta6 by your joint angle variables

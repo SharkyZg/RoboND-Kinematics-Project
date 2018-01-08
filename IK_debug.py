@@ -226,14 +226,10 @@ def test_code(test_case):
     R3_6 = R0_3.inv("LU") * Rrpy
     R3_6 = R3_6.evalf(subs={q1: theta1, q2: theta2, q3: theta3})
 
-    r11 = R3_6.row(0).col(0)[0]
     r13 = R3_6.row(0).col(2)[0]
-
     r21 = R3_6.row(1).col(0)[0]
     r22 = R3_6.row(1).col(1)[0]
     r23 = R3_6.row(1).col(2)[0]
-    r31 = R3_6.row(2).col(0)[0]
-    r32 = R3_6.row(2).col(1)[0]
     r33 = R3_6.row(2).col(2)[0]
 
      
